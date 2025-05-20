@@ -1,4 +1,4 @@
-name: possibility
+name: lax
 depend:
   -- agda-2.7.0
   standard-library-2.0
