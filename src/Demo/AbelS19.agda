@@ -1,3 +1,5 @@
+{-# OPTIONS --safe #-}
+
 module Demo.AbelS19 where
 
 open import Data.Product
@@ -42,12 +44,22 @@ data Nf : Ctx → Ty → Set where
   inr  : Nf Γ b → Nf Γ (a + b)
   case : Ne Γ (a + b) → Nf (Γ `, a) c → Nf (Γ `, b) c → Nf Γ c
 
-postulate
-  wkNe : Γ ⊆ Γ' → Ne Γ a → Ne Γ' a
-  wkNf : Γ ⊆ Γ' → Nf Γ a → Nf Γ' a
-  wkNe-pres-refl : (n : Ne Γ a) → wkNe ⊆-refl n ≡ n
-  wkNe-pres-trans : (i : Γ ⊆ Γ') (i' : Γ' ⊆ Γ'') (n : Ne Γ a)
-    → wkNe (⊆-trans i i') n ≡ wkNe i' (wkNe i n)
+wkNe : Γ ⊆ Γ' → Ne Γ a → Ne Γ' a
+wkNe i (var x) = var (wkVar i x)
+
+wkNf : Γ ⊆ Γ' → Nf Γ a → Nf Γ' a
+wkNf i (emb x)       = emb (wkNe i x)
+wkNf i (init x)      = init (wkNe i x)
+wkNf i (inl n)       = inl (wkNf i n)
+wkNf i (inr n)       = inr (wkNf i n)
+wkNf i (case x n n') = case (wkNe i x) (wkNf (keep i) n) (wkNf (keep i) n')
+
+wkNe-pres-refl : (n : Ne Γ a) → wkNe ⊆-refl n ≡ n
+wkNe-pres-refl (var x) = ≡-cong var (wkVar-pres-⊆-refl x)
+
+wkNe-pres-trans : (i : Γ ⊆ Γ') (i' : Γ' ⊆ Γ'') (n : Ne Γ a)
+  → wkNe (⊆-trans i i') n ≡ wkNe i' (wkNe i n)
+wkNe-pres-trans i i' (var x) = ≡-cong var (wkVar-pres-⊆-trans i i' x)
 
 open import Frame.CFrame 𝒲
 
