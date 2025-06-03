@@ -7,7 +7,7 @@ open import Relation.Binary.PropositionalEquality
   
 open import Context.Base Ty
 
-open import Kripke.IFrame
+open import Frame.IFrame
 
 private
   variable
